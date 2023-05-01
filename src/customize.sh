@@ -5,7 +5,7 @@
 sdcard_folder="/sdcard/DynamicDetachX"
 # setup new sdcard dir
 [ ! -d "$sdcard_folder" ] && {
-    ui_print "setting up sdcard folder"
+    ui_print "- setting up sdcard folder"
     mkdir -p "$sdcard_folder"
     cp -rf "$MODPATH/detach.txt" "$sdcard_folder/detach.txt"
 }
@@ -13,7 +13,7 @@ sdcard_folder="/sdcard/DynamicDetachX"
 # preserve the old Detach.txt
 old_detach_txt="/data/adb/modules/dyndetachx/detach.txt"
 [ -f "$old_detach_txt" ] && {
-    ui_print "updating old detach.txt"
+    ui_print "- updating old detach.txt"
     cp -rf "$old_detach_txt" "sdcard/DynamicDetachX/detach_old.txt"
     cp -rf "$old_detach_txt" "$MODPATH/detach.txt"
     set_perm "$MODPATH/detach.txt" root root 0755
