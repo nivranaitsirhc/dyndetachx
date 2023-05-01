@@ -33,6 +33,8 @@ An expanded approach using HuskyDG Process Monitor Tool.
         - Update the detach.txt in the module. 
     * ```replace``` *<sup>\*2 \*3</sup>*
         - Replaces the detach.txt in the module.
+    * ```force``` *<sup>\*3</sup>*
+        - Force detach apps without checking
     * ```mirror```
         - Mirror copy the final detach.txt from the module in this directory.
 
