@@ -12,7 +12,7 @@ if not defined version (
 	goto:exit
 )
 
-powershell Compress-Archive -Force .\src\* .\dyndetach_%version%.zip
+powershell Compress-Archive -Path .\src\* -DestinationPath .\dyndetachx_%version%.zip -Force -CompressionLevel Fastest 
 
 :exit
 endlocal
