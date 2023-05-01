@@ -2,7 +2,7 @@
 
 ## Description
 Dynamically Detach Playstore App. Run Detach everytime Google Playstore process start. Requires Magisk Process Monitor Tool (Dynamic Mount) v2+.
-An expanded approach using HuskDG Process Monitor Tool.
+An expanded approach using HuskyDG Process Monitor Tool.
 
 ## Features
 * Run checks at every google play process starts.
