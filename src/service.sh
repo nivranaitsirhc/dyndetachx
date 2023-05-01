@@ -19,9 +19,9 @@ sdcard_folder="/sdcard/DynamicDetachX"
     }
     
     # cleanup
-    rm -rf "$MODDIR/enable"
-    rm -rf "$MODDIR/replace"
-    rm -rf "$MODDIR/update"
+    rm -rf "$sdcard_folder/enable"
+    rm -rf "$sdcard_folder/replace"
+    rm -rf "$sdcard_folder/update"
 
     chown root:root "$MODDIR/detach.txt"
     chmod 0755      "$MODDIR/detach.txt"

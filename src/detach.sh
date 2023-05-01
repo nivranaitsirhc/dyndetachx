@@ -30,13 +30,18 @@ detached_list=""
 #
 sdcard_folder=/sdcard/DynamicDetachX
 
-# check for detach file
-if [ ! -f "$path_detach_file_module" ]; then
+# check for db files
+{ [ ! -f "$LDB" ] || [ ! -f "$LADB" ]; } && {
 	exit 1
-fi
+}
+
+# check for detach file
+[ ! -f "$path_detach_file_module" ] && {
+	exit 1
+}
 
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf $1)'"
+    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf "$1")'"
 }
 
 # tag files
@@ -48,7 +53,7 @@ send_notification() {
         sort -u "$MODDIR/detach.txt" "$sdcard_folder/detach.txt" > "$MODDIR/tmp_detach.txt"
         cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"
         rm -rf "$MODDIR/tmp_detach.txt"
-    	rm -rf "$MODDIR/update"
+    	rm -rf "$sdcard_folder/update"
     fi
     [ -f "$sdcard_folder/mirror" ] && {
         cp -rf "$MODDIR/detach.txt" "$sdcard_folder/detach.txt"
@@ -63,9 +68,9 @@ send_notification() {
 # ------------
 while read package_name
 do
-    if [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ]; then
+    [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
 		continue
-	fi
+	}
 	
 	get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
 	
@@ -91,6 +96,6 @@ done < "$path_detach_file_module"
 
 # clear playstore cache
 if [ $toggled_playstore_disabled = true ]; then
-	send_notification "Detached Apps:$detached_list"
+	send_notification "Detached Apps: $detached_list"
 	rm -rf /data/data/$PS/cache/*
 fi
