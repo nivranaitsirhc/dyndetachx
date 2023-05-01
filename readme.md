@@ -16,10 +16,10 @@ An expanded approach using HuskyDG Process Monitor Tool.
 ## How to Install
 1. Download the latest release
 2. Install via Magisk Manager
-4. Look for the DynamicDetachX folder in your sdcard.
-3. Reboot
-5. Edit the detach.txt and add/uncomment your app package_name
-6. create a file in DynamicDetachX and rename it ```update```.
+3. Look for the DynamicDetachX folder in your sdcard.
+4. Edit the detach.txt and add/uncomment your app package_name
+5. create a file in DynamicDetachX and rename it ```update```.
+6. Reboot
 7. Open PlayStore *(It is normal for the app to immediately close after detaching)*
 8. On Android 10+ a notification will apear.
 
