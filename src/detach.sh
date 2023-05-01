@@ -25,6 +25,7 @@ DB=/data/data/$PS/databases
 LDB=$DB/library.db
 LADB=$DB/localappstate.db
 toggled_playstore_disabled=false
+toggled_foced_detach=false
 detached_list=""
 
 #
@@ -45,24 +46,30 @@ send_notification() {
 }
 
 # tag files
-[ -f "$sdcard_folder/enable" ] && [ -f "$sdcard_folder/detach.txt" ] && {
-    if [ -f "$sdcard_folder/replace" ];then 
-        cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
-        rm -rf "$sdcard_folder/replace"
-    elif [ -f "$sdcard_folder/update" ];then
-        sort -u "$MODDIR/detach.txt" "$sdcard_folder/detach.txt" > "$MODDIR/tmp_detach.txt"
-        cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"
-        rm -rf "$MODDIR/tmp_detach.txt"
-    	rm -rf "$sdcard_folder/update"
-    fi
-    [ -f "$sdcard_folder/mirror" ] && {
-        cp -rf "$MODDIR/detach.txt" "$sdcard_folder/detach.txt"
-    }
+[ -f "$sdcard_folder/enable" ] && {
+	[ -f "$sdcard_folder/detach.txt" ] && {
+		if [ -f "$sdcard_folder/replace" ];then 
+			cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
+			rm -rf "$sdcard_folder/replace"
+		elif [ -f "$sdcard_folder/update" ];then
+			sort -u "$MODDIR/detach.txt" "$sdcard_folder/detach.txt" > "$MODDIR/tmp_detach.txt"
+			cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"
+			rm -rf "$MODDIR/tmp_detach.txt"
+			rm -rf "$sdcard_folder/update"
+		fi
+		[ -f "$sdcard_folder/mirror" ] && {
+			cp -rf "$MODDIR/detach.txt" "$sdcard_folder/detach.txt"
+		}
 
-    chown root:root "$MODDIR/detach.txt"
-    chmod 0755      "$MODDIR/detach.txt"
+		chown root:root "$MODDIR/detach.txt"
+		chmod 0755      "$MODDIR/detach.txt"
+	}
+	
+	[ -f "$sdcard_folder/force" ] && {
+		toggled_foced_detach=true
+		rm -rf "$sdcard_folder/force"
+	}
 }
-
 
 # main-process
 # ------------
@@ -72,30 +79,32 @@ do
 		continue
 	}
 	
-	get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
+	[ $toggled_foced_detach != true ] && {
+		get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
+	}
 	
 	# detach
-	if [ "$get_LDB" != "25" ]; then
+	[ "$get_LDB" != "25" ] || [ $toggled_foced_detach = true ] && {
 
 		# stop playstore
-		if [ $toggled_playstore_disabled = false ]; then
+		[ $toggled_playstore_disabled = false ] && {
 			am force-stop "$PS"
 			cmd appops set --uid "$PS" GET_USAGE_STATS ignore
 			# prevent multiple call
 			toggled_playstore_disabled=true
-		fi
+		}
 	
 		# configure database
 		sqlite3 $LDB	"UPDATE ownership	SET doc_type 	= '25'	WHERE doc_id		= '$package_name'";
 		sqlite3 $LADB	"UPDATE appstate	SET auto_update = '2'	WHERE package_name	= '$package_name'";
 
 		detached_list="$detached_list\n$package_name"
-	fi
+	}
 	
 done < "$path_detach_file_module"
 
 # clear playstore cache
-if [ $toggled_playstore_disabled = true ]; then
+[ $toggled_playstore_disabled = true ] && {
 	send_notification "Detached Apps: $detached_list"
 	rm -rf /data/data/$PS/cache/*
-fi
+}
