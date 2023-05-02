@@ -31,6 +31,12 @@ else
     ui_print "* created default detach.txt, please modify this file before you reboot."
 fi
 
+# set permissions
+ui_print "* setting permissions"
+set_perm_recursive "$MODDIR/bin" root root 0755 0755
+
+
+
 # check for dynmount
 [ ! -d "/data/adb/modules/magisk_proc_monitor" ] && {
     ui_print "* missing Magisk Process Monitor. Please install it after this module."
