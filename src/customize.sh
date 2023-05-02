@@ -24,7 +24,11 @@ elif [ -f "$sdcard_folder/detach.txt" ]; then
     set_perm "$MODPATH/detach.txt" root root 0755
 else
     ui_print "* creating $sdcard_folder/detach.txt"
+    touch "$sdcard_folder/detach.txt"
+    # touch "$sdcard_folder/enable"
+    # touch "$sdcard_folder/replace"
     printf "com.google.android.apps.youtube.music\ncom.google.android.youtube" > "$sdcard_folder/detach.txt"
+    ui_print "* created default detach.txt, please modify this file before you reboot."
 fi
 
 # check for dynmount
