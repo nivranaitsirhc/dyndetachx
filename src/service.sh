@@ -1,11 +1,8 @@
 #!/system/bin/sh
-while [ "$(resetprop sys.boot_completed)" != 1 ]; do
-    sleep 1
-done
-sleep 1
-MODDIR="${0%/*}"
-
+until [ "$(getprop sys.boot_completed)" = 1 ];do sleep 1;done
 sdcard_folder="/sdcard/DynamicDetachX"
+until [ -d "/sdcard/" ];do sleep 1;done
+MODDIR="${0%/*}"
 [ -f "$sdcard_folder/detach.txt" ] && {
     if [ -f "$MODDIR/detach.txt" ]; then
         [ -f "$sdcard_folder/enable" ] && {
@@ -23,12 +20,12 @@ sdcard_folder="/sdcard/DynamicDetachX"
     else
         cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
     fi
-    
+
     # cleanup
     rm -rf "$sdcard_folder/enable"
     rm -rf "$sdcard_folder/replace"
     rm -rf "$sdcard_folder/update"
 
     chown root:root "$MODDIR/detach.txt"
-    chmod 0755      "$MODDIR/detach.txt"
+    chmod 0644      "$MODDIR/detach.txt"
 }
