@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1 - (v10.00.03)
+* fixed missing execute permission for bin
+* fixed bug preventing the last entry from detach.txt from being read.
 ## v1 - (v10.00.02)
 * reworked install prep to default create a sample detach.txt in sdcard.
 * service.sh will now respect sdcard tag file.
