@@ -73,8 +73,7 @@ send_notification() {
 
 # main-process
 # ------------
-while read package_name
-do
+while IFS= read -r package_name || [ -n "$package_name" ];do
     [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
 		continue
 	}
