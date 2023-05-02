@@ -1,4 +1,8 @@
 # Dynamic Detach ~ Changelog
+## v1 - (v10.00.04)
+* fixed service.sh.
+* fixed detach.txt not being sourced from sdcard.
+* fixed typo in install script.
 ## v1 - (v10.00.03)
 * fixed missing execute permission for bin
 * fixed bug preventing the last entry from detach.txt from being read.
