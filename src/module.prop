@@ -1,7 +1,7 @@
 id=dyndetachx
 name=Dynamic Detach
-version=v1.0.1
-versionCode=100001
+version=v1.0.2
+versionCode=100002
 author=nivranaitsirhc
-description=Dynamically detach android app at every Playstore Process start. Requires: Magisk Process Monitor Tool (Dynamic Mount) v2+.
+description=Dynamically detach android app at every PlayStore process start. Requires: Magisk Process Monitor Tool (Dynamic Mount) v2+.
 updateJson=https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/main/update.json
