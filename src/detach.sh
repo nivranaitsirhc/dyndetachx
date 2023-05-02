@@ -36,11 +36,6 @@ sdcard_folder=/sdcard/DynamicDetachX
 	exit 1
 }
 
-# check for detach file
-[ ! -f "$path_detach_file_module" ] && {
-	exit 1
-}
-
 send_notification() {
     su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf "$1")'"
 }
@@ -60,15 +55,18 @@ send_notification() {
 		[ -f "$sdcard_folder/mirror" ] && {
 			cp -rf "$MODDIR/detach.txt" "$sdcard_folder/detach.txt"
 		}
-
 		chown root:root "$MODDIR/detach.txt"
-		chmod 0755      "$MODDIR/detach.txt"
+		chmod 0644      "$MODDIR/detach.txt"
 	}
-	
 	[ -f "$sdcard_folder/force" ] && {
 		toggled_foced_detach=true
 		rm -rf "$sdcard_folder/force"
 	}
+}
+
+# check for detach file
+[ ! -f "$path_detach_file_module" ] && {
+	exit 1
 }
 
 # main-process
@@ -77,14 +75,11 @@ while IFS= read -r package_name || [ -n "$package_name" ];do
     [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
 		continue
 	}
-	
 	[ $toggled_foced_detach != true ] && {
 		get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
 	}
-	
 	# detach
 	[ "$get_LDB" != "25" ] || [ $toggled_foced_detach = true ] && {
-
 		# stop playstore
 		[ $toggled_playstore_disabled = false ] && {
 			am force-stop "$PS"
@@ -92,14 +87,11 @@ while IFS= read -r package_name || [ -n "$package_name" ];do
 			# prevent multiple call
 			toggled_playstore_disabled=true
 		}
-	
 		# configure database
 		sqlite3 $LDB	"UPDATE ownership	SET doc_type 	= '25'	WHERE doc_id		= '$package_name'";
 		sqlite3 $LADB	"UPDATE appstate	SET auto_update = '2'	WHERE package_name	= '$package_name'";
-
 		detached_list="$detached_list\n$package_name"
 	}
-	
 done < "$path_detach_file_module"
 
 # clear playstore cache
