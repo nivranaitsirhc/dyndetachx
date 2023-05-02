@@ -8,7 +8,7 @@ MODDIR="${0%/*}"
         [ -f "$sdcard_folder/enable" ] && {
             if [ -f "$sdcard_folder/replace" ];then 
                 cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
-            elif [ -f "$sdcard_folder/update" ];then
+            elif [ -f "$sdcard_folder/merge" ];then
                 sort -u "$MODDIR/detach.txt" "$sdcard_folder/detach.txt" > "$MODDIR/tmp_detach.txt"
                 cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"
                 rm -rf "$MODDIR/tmp_detach.txt"
@@ -20,12 +20,11 @@ MODDIR="${0%/*}"
     else
         cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
     fi
-
     # cleanup
     rm -rf "$sdcard_folder/enable"
     rm -rf "$sdcard_folder/replace"
-    rm -rf "$sdcard_folder/update"
-
+    rm -rf "$sdcard_folder/merge"
+    # permissions
     chown root:root "$MODDIR/detach.txt"
     chmod 0644      "$MODDIR/detach.txt"
 }

@@ -7,12 +7,10 @@ MODNAME="${MODDIR##*/}"
 
 # config-paths
 # ------------
-
 # magisk Busybox
 export PATH="$MAGISKTMP/.magisk/busybox:$PATH"
 # module local binaries
 export PATH="$MODDIR/bin:$PATH"
-
 
 # config-static_variables 
 # -----------------------
@@ -46,11 +44,11 @@ send_notification() {
 		if [ -f "$sdcard_folder/replace" ];then 
 			cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
 			rm -rf "$sdcard_folder/replace"
-		elif [ -f "$sdcard_folder/update" ];then
+		elif [ -f "$sdcard_folder/merge" ];then
 			sort -u "$MODDIR/detach.txt" "$sdcard_folder/detach.txt" > "$MODDIR/tmp_detach.txt"
 			cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"
 			rm -rf "$MODDIR/tmp_detach.txt"
-			rm -rf "$sdcard_folder/update"
+			rm -rf "$sdcard_folder/merge"
 		fi
 		[ -f "$sdcard_folder/mirror" ] && {
 			cp -rf "$MODDIR/detach.txt" "$sdcard_folder/detach.txt"
