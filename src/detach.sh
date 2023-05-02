@@ -84,6 +84,12 @@ done < "$path_detach_file_module"
 [ $toggled_playstore_disabled = true ] && {
 	send_notification "Detached Apps: $detached_list"
 	rm -rf /data/data/$PS/cache/*
-	# start playstore
-	am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)"
+	# restart playstore only after a successfully detached, prevent loops
+	[ ! -f "$MODDIR/detached" ] && {
+		# start playstore
+		sleep 3
+		am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)"
+		touch "$MODDIR/detached"
+	}
 }
+[ -f "$MODDIR/detached" ] && rm -rf "$MODDIR/detached"
