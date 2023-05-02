@@ -7,9 +7,7 @@ sdcard_folder="/sdcard/DynamicDetachX"
 [ ! -d "$sdcard_folder" ] && {
     ui_print "* setting up sdcard folder"
     mkdir -p "$sdcard_folder"
-    cp -rf "$MODPATH/detach.txt" "$sdcard_folder/detach.txt"
 }
-
 
 # preserve the old Detach.txt
 old_detach_txt="/data/adb/modules/dyndetachx/detach.txt"
@@ -20,7 +18,7 @@ if [ -f "$old_detach_txt" ]; then
     set_perm "$MODPATH/detach.txt" root root 0755
 elif [ -f "$sdcard_folder/detach.txt" ]; then 
     ui_print "* using sdcard detach.txt"
-    cp -rf "$sdcard_folder/detach.txt" "$MODDIR/detach.txt"
+    cp -rf "$sdcard_folder/detach.txt" "$MODPATH/detach.txt"
     set_perm "$MODPATH/detach.txt" root root 0755
 else
     ui_print "* creating $sdcard_folder/detach.txt"
@@ -33,9 +31,7 @@ fi
 
 # set permissions
 ui_print "* setting permissions"
-set_perm_recursive "$MODDIR/bin" root root 0755 0755
-
-
+set_perm_recursive "$MODPATH/bin" root root 0755 0755
 
 # check for dynmount
 [ ! -d "/data/adb/modules/magisk_proc_monitor" ] && {
