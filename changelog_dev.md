@@ -1,11 +1,19 @@
 # Dynamic Detach ~ Changelog
 ## v1.0.8_beta 
+- 44ad4a8 [core]          
+    - temporary fix to invalid update.json caused by build.sh (nivranaitsirhc)  
+- 5a44ea4 [core]          
+    - fix detach.sh multiple typo causing mayhem (nivranaitsirhc)  
+- 7738a45 [core]          
+    - refactor dynmount.sh to fix unknown error causing detach.sh from not executing (nivranaitsirhc)  
 - 30b1b02 [builder]       
     - refactor update.json generation changelog.md link not applying properly (nivranaitsirhc)  
 - 87b7d8d [core]          
     - enabled debugging to detach.sh (nivranaitsirhc)  
 - b008b00 [builder]       
-    - fix update_beta.json generation still pointing to main (nivranaitsirhc)    
+    - fix update_beta.json generation still pointing to main (nivranaitsirhc)  
+- a9d3792 [docs]          
+    - update readme.md (nivranaitsirhc)    
 ## v1.0.7_beta 
 - e94e07d [core]          
     - fix typo causing failure in copying the old detach.txt (nivranaitsirhc)  
