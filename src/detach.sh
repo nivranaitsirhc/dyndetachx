@@ -153,9 +153,9 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
 		}
 		logme stats "loop: detaching  $package_name.."
 		# update database to disable apps
-		sqlite3 $LDB	"UPDATE ownership	SET doc_type 	= '25'	WHERE doc_id		= '$package_name'" ||\
+		sqlite3 $LDB	"UPDATE ownership SET doc_type = '25' WHERE doc_id = '$package_name'" ||\
 		logme error "loop: failed to set DB ownership"
-		sqlite3 $LADB	"UPDATE appstate	SET auto_update = '2'	WHERE package_name	= '$package_name'" ||\
+		sqlite3 $LADB	"UPDATE appstate SET auto_update = '2' WHERE package_name = '$package_name'" ||\
 		logme error "loop: failed to set DB disable auto_update"
 
 		# generate detach list
