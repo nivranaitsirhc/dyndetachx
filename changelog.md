@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.0.11_beta 
+- d62f39c [fix]           
+    - fix bug caused by improper whitespace when updating db (nivranaitsirhc)    
 ## v1.0.10_beta 
 - 0cd3edc [fix]           
     - fix bug caused by problematic PATH manipulation (nivranaitsirhc)    
