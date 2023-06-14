@@ -1,4 +1,9 @@
 # Dynamic Detach ~ Changelog
+## v1.0.7_beta 
+- e94e07d [core]          
+    - fix typo causing failure in copying the old detach.txt (nivranaitsirhc)  
+- af9900a [builder]       
+    - fix typo in release channel generation causing trims to not function (nivranaitsirhc)    
 ## v1.0.6 
 - 0e501d4 [core]          
     - add logging lib (nivranaitsirhc)  
