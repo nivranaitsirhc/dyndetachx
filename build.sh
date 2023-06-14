@@ -84,7 +84,7 @@ logme debug main "beta=$latest_tag_beta"
 
 # module_beta.prop
 updateJsonUrl_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dyndetachx\/bleeding\/configs\/update_beta.json"
-updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dyndetachx\/bleeding\/changelog.md"
+updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dyndetachx\/bleeding\/changelog_dev.md"
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
