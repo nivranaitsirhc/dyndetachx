@@ -54,11 +54,11 @@ send_notification() {
 }
 
 # log
-logme stats "starting detach.sh.."
+logme stats "initializing detach.sh.."
 
 # Tag Files
 [ -f "$internal_storage/enable" ] && {
-	logme debug "tag-filess: processing tags.."
+	logme debug "tag-files: enabled by $internal_storage/enable"
 
 	# Enable Tag File Process
 	[ -f "$internal_storage/detach.txt" ] && {
@@ -87,14 +87,14 @@ logme stats "starting detach.sh.."
 
 		if	chown root:root "$MODDIR/detach.txt" && \
 			chmod 0644      "$MODDIR/detach.txt"; then
-			logme debug "tag-files: permissions set to detach.txt"
+			logme debug "tag-files: done setting permissions."
 		else
-			logme warn "tag-files: unable to set permissions to detach.txt"
+			logme warn "tag-files: failed to set permissions"
 		fi
 	}
 
 	[ -f "$internal_storage/force" ] && {
-		logme stats "tag-files: detected force tag, setting force toggle to true. This will ignore checks."
+		logme stats "tag-files: detected force tag, setting force toggle to true. This will ignore checks during detach process."
 		# flag the force detach script
 		toggled_forced_detach=true
 		rm -rf "$internal_storage/force"
@@ -103,30 +103,32 @@ logme stats "starting detach.sh.."
 
 # check for detach file
 [ ! -f "$path_file_module_detach" ] && {
-	logme error "missing detach.txt in module."
 	mkdir -p "$internal_storage"
 	printf "$(date) - missing module dir detach.txt" > "$internal_storage/missing_detach.txt"
+	logme error "exiting due missing detach.txt in module."
 	exit 1
 }
 
 # main-process
 # ------------
-logme debug "querying package_name's from detach.txt.."
+logme stats "loop: starting detach process.."
+logme debug "loop: querying package_name's from detach.txt.."
 while IFS=  read -r package_name || [ -n "$package_name" ];do
 	# iterate all the package name in detach.txt
-	logme debug "processing $packge_name.."
+	logme debug "loop: processing $package_name.."
+	
 	# verify package name
     [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
 		# package_name is not installed, skip to the next iteration
-		logme debug "skipping,  $package_name is not installed."
+		logme debug "loop: skipping,  $package_name is not installed."
 		continue
 	}
 
-
 	[ $toggled_forced_detach != true ] && {
 		# get LDB value, no need to check if force flag is enabled
-		get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25) || {
-			logme error "get_LDB failed. unable to get LDB value."
+		get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
+		[ -z $get_LDB ] && {
+			logme debug "loop: skipping,  $package_name failed when querying for LDB"
 			continue
 		}
 	}
@@ -136,23 +138,23 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
 
 		# stop playstore only once
 		[ $toggled_playstore_disabled != true ] && {
-			logme debug "disabling PlayStoreb and setting GET_USAGE_STATS to ignore"
+			logme debug "loop: disabling PlayStoreb and setting GET_USAGE_STATS to ignore"
 
 			# stop the playstore
 			am force-stop "$PS" ||\
-			logme error "failed to stop $PS"
+			logme error "loop: failed to stop $PS"
 			cmd appops set --uid "$PS" GET_USAGE_STATS ignore ||\
-			logme error "failed to set GET_USAGE_STATS"
+			logme error "loop: failed to set GET_USAGE_STATS"
 
 			# prevent multiple call
 			toggled_playstore_disabled=true
 		}
-		logme stats "detaching  $package_name.."
+		logme stats "loop: detaching  $package_name.."
 		# update database to disable apps
 		sqlite3 $LDB	"UPDATE ownership	SET doc_type 	= '25'	WHERE doc_id		= '$package_name'" ||\
-		logme error "failed to update LDB"
+		logme error "loop: failed to set DB ownership"
 		sqlite3 $LADB	"UPDATE appstate	SET auto_update = '2'	WHERE package_name	= '$package_name'" ||\
-		logme error "failed to update LADB"
+		logme error "loop: failed to set DB disable auto_update"
 
 		# generate detach list
 		detached_list="$detached_list\n$package_name"
@@ -161,28 +163,25 @@ done < "$path_file_module_detach"
 
 # clear playstore cache
 [ $toggled_playstore_disabled = true ] && {
-	logme stats "clearing PlayStore Cache.."
+	logme stats "cleanup: clearing PlayStore Cache.."
 	send_notification "Detached Apps: $detached_list"
 	rm -rf /data/data/$PS/cache/* ||\
-	logme error "failed to clear cache"
+	logme error "cleanup: failed to clear cache"
 
 	# restart playstore only after a successfully detached, prevent loops
 	[ ! -f "$MODDIR/detached" ] && {
 		# start playstore
 		# sleep 3
-		logme debug "restarting PlayStore and creating detached tag file"
+		logme debug "cleanup: restarting PlayStore and creating detached tag file."
 		touch "$MODDIR/detached" ||\
-		logme error "failed to create tag detached tag file"
-		am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)" ||\
-		logme error "failed to start PlayStore"
-		
-		# skip cleanup
-		return 0
+		logme error "cleanup: failed to create tag detached tag file."
+		{ am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)" && return 0 } ||\
+		logme error "cleanup: failed to start PlayStore"
 	}
 }
 
 # clean up
 [ -f "$MODDIR/detached" ] && {
-	logme debug "removed detached tag file"
+	logme debug "cleanup: removed detached tag file."
 	rm -rf "$MODDIR/detached"
 }
