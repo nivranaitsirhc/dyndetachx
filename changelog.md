@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.0.8_beta 
+- 87b7d8d [core]          
+    - enabled debugging to detach.sh (nivranaitsirhc)    
 ## v1.0.7_beta 
 - e94e07d [core]          
     - fix typo causing failure in copying the old detach.txt (nivranaitsirhc)    

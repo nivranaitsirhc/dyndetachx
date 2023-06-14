@@ -1,6 +1,6 @@
 {
-    "version": "v1.0.7_beta",
-    "versionCode": 10007,
-    "zipUrl": "https://github.com/nivranaitsirhc/dyndetachx/releases/download/v1.0.7_beta/dyndetachx_v1.0.7_beta_beta-channel.zip",
-    "changelog": "https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/main/changelog.md" 
+    "version": "v1.0.8_beta",
+    "versionCode": 10008,
+    "zipUrl": "https://github.com/nivranaitsirhc/dyndetachx/releases/download/v1.0.8_beta/dyndetachx_v1.0.8_beta_beta-channel.zip",
+    "changelog": "https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/bleeding/changelog_dev.md",
 }
