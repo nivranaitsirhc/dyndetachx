@@ -5,10 +5,11 @@
 # magisk_module required
 MODDIR="${0%/*}"
 # MODNAME="${MODDIR##*/}"
+MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
 # config-paths
 # ------------
 # magisk Busybox & module local binaries
-export PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
+export PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 # config-static_variables 
 # -----------------------
 path_file_module_detach="$MODDIR/detach.txt"
