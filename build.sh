@@ -88,7 +88,7 @@ updateJsonChangelog_beta="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/d
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module_beta.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module_beta.prop"
 set_prop updateJson     "$updateJsonUrl_beta"           "$ROOTDIR/configs/module_beta.prop"
-set_prop changelog      "$updateJsonChangelog_beta"     "$ROOTDIR/configs/module_beta.prop"
+# set_prop changelog      "$updateJsonChangelog_beta"     "$ROOTDIR/configs/module_beta.prop"
 
 # module.prop
 [ $latest_tag_beta = false ] && {
@@ -97,22 +97,24 @@ updateJsonChangelog="https:\/\/raw.githubusercontent.com\/nivranaitsirhc\/dyndet
 set_prop version        "$latest_tag_name"              "$ROOTDIR/configs/module.prop"
 set_prop versionCode    "$latest_tag_code_num"          "$ROOTDIR/configs/module.prop"
 set_prop updateJson     "$updateJsonUrl"                "$ROOTDIR/configs/module.prop"
-set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module.prop"
+# set_prop changelog      "$updateJsonChangelog"          "$ROOTDIR/configs/module.prop"
 }
 
 
 # update_beta.json
 zipUrl="https:\/\/github.com\/nivranaitsirhc\/dyndetachx\/releases\/download\/$latest_tag_name\/$target_zip_beta_channel"
-set_prop_json "version"       "$latest_tag_name"        "$ROOTDIR/configs/update_beta.json"
-set_prop_json "versionCode"   "$latest_tag_code_num"    "$ROOTDIR/configs/update_beta.json"
-set_prop_json "zipUrl"        "$zipUrl"                 "$ROOTDIR/configs/update_beta.json"
+set_prop_json "version"         "$latest_tag_name"          "$ROOTDIR/configs/update_beta.json"
+set_prop_json "versionCode"     "$latest_tag_code_num"      "$ROOTDIR/configs/update_beta.json"
+set_prop_json "zipUrl"          "$zipUrl"                   "$ROOTDIR/configs/update_beta.json"
+set_prop_json "changelog"       "$updateJsonChangelog_beta" "$ROOTDIR/configs/update_beta.json"
 
 # update.json
 [ "$latest_tag_beta" = false ] && {
 zipUrl="https:\/\/github.com\/nivranaitsirhc\/dyndetachx\/releases\/download\/$latest_tag_name\/$target_zip_release_channel"
-set_prop_json "version"       "$latest_tag_name"        "$ROOTDIR/configs/update.json"
-set_prop_json "versionCode"   "$latest_tag_code_num"    "$ROOTDIR/configs/update.json"
-set_prop_json "zipUrl"        "$zipUrl"                 "$ROOTDIR/configs/update.json"
+set_prop_json "version"         "$latest_tag_name"          "$ROOTDIR/configs/update.json"
+set_prop_json "versionCode"     "$latest_tag_code_num"      "$ROOTDIR/configs/update.json"
+set_prop_json "zipUrl"          "$zipUrl"                   "$ROOTDIR/configs/update.json"
+set_prop_json "zipUrl"          "$updateJsonChangelog"      "$ROOTDIR/configs/update.json"
 }
 
 # view comfing files
