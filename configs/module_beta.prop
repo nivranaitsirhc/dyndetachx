@@ -1,7 +1,7 @@
 id=dyndetachx
 name=Dynamic Detach (Beta Channel)
-version=v1.0.8_beta
-versionCode=10008
+version=v1.0.9_beta
+versionCode=10009
 author=nivranaitsirhc
 description=Dynamically detach android app at every PlayStore process start. Requires: Magisk Process Monitor Tool (Dynamic Mount) v2+.
 updateJson=https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/bleeding/configs/update_beta.json

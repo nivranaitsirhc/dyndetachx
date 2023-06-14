@@ -1,9 +1,13 @@
 # Dynamic Detach ~ Changelog
-## v1.0.8_beta 
+## v1.0.9_beta 
+- 97f67dc [core]          
+    - enable logger_check (nivranaitsirhc)  
 - 87b7d8d [core]          
     - enabled debugging to detach.sh (nivranaitsirhc)  
 - 5a44ea4 [core]          
     - fix detach.sh multiple typo causing mayhem (nivranaitsirhc)  
+- d9c9cb5 [core]          
+    - refactor detach.sh to indicate that an app is already detached (nivranaitsirhc)  
 - 7738a45 [core]          
     - refactor dynmount.sh to fix unknown error causing detach.sh from not executing (nivranaitsirhc)  
 - 44ad4a8 [core]          

@@ -1,5 +1,11 @@
 # Dynamic Detach ~ Changelog
-## v1.0.8_beta 
+## v1.0.9_beta 
+- d9c9cb5 [core]          
+    - refactor detach.sh to indicate that an app is already detached (nivranaitsirhc)  
+- bf79cf7 [configs]       
+    - fix module.prop support link (nivranaitsirhc)  
+- 97f67dc [core]          
+    - enable logger_check (nivranaitsirhc)  
 - 44ad4a8 [core]          
     - temporary fix to invalid update.json caused by build.sh (nivranaitsirhc)  
 - 5a44ea4 [core]          
