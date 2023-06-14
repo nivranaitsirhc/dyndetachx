@@ -135,11 +135,11 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
 	}
 
 	# verification if detach is need unless force flash is enabled
-	[ "$get_LDB" != "25" ] || [ $toggled_forced_detach = true ] && {
+	if { [ "$get_LDB" != "25" ] || [ $toggled_forced_detach = true ]; };then 
 
 		# stop playstore only once
 		[ $toggled_playstore_disabled != true ] && {
-			logme debug "loop: disabling PlayStoreb and setting GET_USAGE_STATS to ignore"
+			logme debug "loop: disabling PlayStore and setting GET_USAGE_STATS to ignore"
 
 			# stop the playstore
 			am force-stop "$PS" ||\
@@ -159,8 +159,11 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
 
 		# generate detach list
 		detached_list="$detached_list\n$package_name"
-	}
+	else 
+		logme debug "loop: skipping,  $package_name already detached!"
+	fi
 done < "$path_file_module_detach"
+logme stats "loop: detach process done!"
 
 # clear playstore cache
 [ $toggled_playstore_disabled = true ] && {
