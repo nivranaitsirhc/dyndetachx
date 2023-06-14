@@ -71,7 +71,7 @@ prepareEnterMntNs(){
     }
 
 	# app specific
-    if [ "$PROC" = "com.android.vending" ]; then
+    if { [ "$PROC" = "com.android.vending" ] || [ "$PROC" = "com.android.vending:background" ]; }; then
         su 0 -mm -c sh "$MODDIR/detach.sh"
         exit_script 1
     fi
