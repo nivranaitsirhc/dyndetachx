@@ -61,11 +61,10 @@ Tag File behaviour will only be enforced after reboot for ``clean install`` or e
 Tag File behaviour will also be enforced during boot up process as long it is present and the conditions are met. Note that some tag files are removed after its execution.
 
 
-## Support
+## Warranty
 This script is provided as-is without warranty, but reporting bugs is highly appreciated.
 
-## Donate
-*A ``thank you`` can go beyond a thousand miles. Gestures are also highly appreciated.*
+## Support
 * [Buy Me a Coffee](https://www.buymeacoffee.com/caccabo "A caffine of excitement")
 * [Paypal](https://paypal.me/caccabo "PayPal")
 
