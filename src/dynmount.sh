@@ -1,13 +1,17 @@
 #!/system/bin/sh
+# shellcheck shell=bash
+# shellcheck source=/dev/null
+
 # magisk_module required
-MODDIR="${0%/*}"
-MODNAME="${MODDIR##*/}"
+export MODDIR="${0%/*}"
+export MODNAME="${MODDIR##*/}"
 
 # config-paths
 # ------------
 
-# magisk busybox and module local binaries
-export PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
+# magisk Busybox & module local binaries
+PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
+
 
 # API_VERSION = 1
 export STAGE="$1"  # prepareEnterMntNs or EnterMntNs
@@ -24,12 +28,28 @@ export USERID="$5" # USER ID of app
 
 # config-static_variables 
 # -----------------------
+# apps folder
+path_dir_storage="/sdcard/DynamicDetachX"
+path_dir_apps_module="$MODDIR/apps"
+path_dir_apps_storage="$path_dir_storage/apps"
 
+
+# log file
+export path_file_log="$MODDIR/module.log"
+
+# dummy fn
+logme(){ :; }
+# source lib
+[ -d "$MODDIR/lib" ] && {
+    # logger
+    [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
+}
 
 exit_script() {
     # clean up before exit
     exit "$1"
 }
+
 RUN_SCRIPT(){
     if [ "$STAGE" = "prepareEnterMntNs" ]; then
         prepareEnterMntNs
@@ -39,17 +59,22 @@ RUN_SCRIPT(){
         OnSetUID
     fi
 }
+
+
 prepareEnterMntNs(){
     # this function run on app pre-initialize
+
 	# minimum process monitor tool v3
-    if [ "$API_VERSION" -lt 3 ]; then
+    [ "$API_VERSION" -lt 2 ] && {
+        exit_script 1
+    }
+
+	# app specific
+    if [ "$PROC" = "com.android.vending" ]; then
+        su 0 -mm -c sh "$MODDIR/detach.sh"
         exit_script 1
     fi
 
-	# catch google play, pass to EnterMntNs to lunch detach
-    if [ "$PROC" = "com.android.vending" ]; then
-        su 0 -mm -c sh "$MODDIR/detach.sh"
-    fi
     exit_script 1 # close script
 }
 EnterMntNs(){
