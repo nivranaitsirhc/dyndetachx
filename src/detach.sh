@@ -13,6 +13,7 @@ export PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
 # -----------------------
 path_file_module_detach="$MODDIR/detach.txt"
 path_dir_storage="/sdcard/DynamicMountManagerX"
+path_file_tag_global_debug="$path_dir_storage/debug"
 # -----------------------
 PS=com.android.vending
 DB=/data/data/$PS/databases
@@ -175,7 +176,7 @@ done < "$path_file_module_detach"
 		logme debug "cleanup: restarting PlayStore and creating detached tag file."
 		touch "$MODDIR/detached" ||\
 		logme error "cleanup: failed to create tag detached tag file."
-		{ am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)" && return 0 } ||\
+		{ am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)" && { logger_check && return 0;}; } ||\
 		logme error "cleanup: failed to start PlayStore"
 	}
 }
@@ -185,3 +186,4 @@ done < "$path_file_module_detach"
 	logme debug "cleanup: removed detached tag file."
 	rm -rf "$MODDIR/detached"
 }
+logger_check
