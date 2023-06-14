@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.0.10_beta 
+- 0cd3edc [fix]           
+    - fix bug caused by problematic PATH manipulation (nivranaitsirhc)    
 ## v1.0.9_beta 
 - d9c9cb5 [core]          
     - refactor detach.sh to indicate that an app is already detached (nivranaitsirhc)  
