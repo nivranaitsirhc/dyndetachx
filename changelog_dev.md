@@ -1,5 +1,7 @@
 # Dynamic Detach ~ Changelog
-## main 
+## v1.1.0 
+- 06ed955 [core]          
+    - refactor everything! :) (nivranaitsirhc)  
 - 44ad4a8 [core]          
     - temporary fix to invalid update.json caused by build.sh (nivranaitsirhc)  
 - 5a44ea4 [core]          
