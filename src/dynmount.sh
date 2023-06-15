@@ -5,12 +5,14 @@
 # magisk_module required
 export MODDIR="${0%/*}"
 export MODNAME="${MODDIR##*/}"
+MAGISKTMP=$(magisk --path) || MAGISKTMP=/sbin
+export MAGISKTMP
 
 # config-paths
 # ------------
 
 # magisk Busybox & module local binaries
-PATH="$MODDIR/bin:$PATH:$MAGISKTMP/.magisk/busybox:$PATH"
+PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 
 
 # API_VERSION = 1
@@ -29,21 +31,12 @@ export USERID="$5" # USER ID of app
 # config-static_variables 
 # -----------------------
 # apps folder
-path_dir_storage="/sdcard/DynamicDetachX"
-path_dir_apps_module="$MODDIR/apps"
-path_dir_apps_storage="$path_dir_storage/apps"
+# path_dir_storage="/sdcard/DynamicDetachX"
+# path_dir_apps_module="$MODDIR/apps"
+# path_dir_apps_storage="$path_dir_storage/apps"
 
 
-# log file
-export path_file_log="$MODDIR/module.log"
 
-# dummy fn
-logme(){ :; }
-# source lib
-[ -d "$MODDIR/lib" ] && {
-    # logger
-    [ -f "$MODDIR/lib/logger.sh" ] && . "$MODDIR/lib/logger.sh"
-}
 
 exit_script() {
     # clean up before exit
@@ -70,8 +63,8 @@ prepareEnterMntNs(){
     }
 
 	# app specific
-    if [ "$PROC" = "com.android.vending" ]; then
-        su 0 -mm -c sh "$MODDIR/detach.sh"
+    if { [ "$PROC" = "com.android.vending" ] || [ "$PROC" = "com.android.vending:background" ]; }; then
+        su 0 -mm -c "$MODDIR/detach.sh"
         exit_script 1
     fi
 

@@ -56,10 +56,11 @@ logme () {
 
 # get latest tag
 # latest_tag_name="$(git describe --tags --abbrev=0)"
+current_branch=$(git rev-parse --abbrev-ref HEAD)
 latest_tag_name="$(git tag --sort=committerdate | tail -n1)"
 latest_tag_code="$(echo "$latest_tag_name" | awk -F '[v._]' '{printf "%02i%02i%02i",$2,$3,$4;}')"
 latest_tag_code_num="$(echo "$latest_tag_name" | awk -F '[v._]' '{printf "%01i%02i%02i",$2,$3,$4;}')"
-if echo "$latest_tag_name" | grep -q beta; then
+if { [ "$1" = "release" ] && echo "$latest_tag_name" | grep -q beta; }; then
     latest_tag_beta=true
 else
     latest_tag_beta=false
@@ -180,7 +181,7 @@ printf "%s\n" "--------------------------------------------"
 target_usr_changelog="changelog.md"
 
 printf "%s\n" "# Dynamic Detach ~ Changelog" > "$ROOTDIR/$target_usr_changelog"
-TAG_NOW=$latest_tag_name
+if [ "$1" = "release" ];then TAG_NOW=$latest_tag_name;else TAG_NOW=$current_branch;fi
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
         # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
@@ -206,7 +207,7 @@ printf "%s\n" "--------------------------------------------"
 target_dev_changelog=changelog_dev.md
 
 printf "%s\n" "# Dynamic Detach ~ Changelog" > "$ROOTDIR/$target_dev_changelog"
-TAG_NOW=$latest_tag_name
+if [ "$1" = "release" ];then TAG_NOW=$latest_tag_name;else TAG_NOW=$current_branch;fi
 git tag --sort=-committerdate | while read -r TAG_PREVIOUS; do
     [ ! "$TAG_PREVIOUS" = "" ] && {
         # diff="$(git log ${TAG_PREVIOUS}..${TAG_NOW} --pretty=format:"%h (%an) %s" --no-merges | grep -v "docs\|bump\|repository\|builder\|git" | sed -E 's/^/- /g')"
@@ -225,7 +226,7 @@ printf "%s\n" "- Initial Release" >> "$ROOTDIR/$target_dev_changelog"
 cat "$ROOTDIR/$target_dev_changelog"
 
 
-[ "$1" == "release" ] && {
+[ "$1" = "release" ] && {
     git add changelog.md changelog_dev.md configs && \
     git commit -m "[release] build.sh invoked relase for $latest_tag_name @ $(date)"
     echo "added commit"
