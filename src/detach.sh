@@ -27,10 +27,10 @@ detached_list=""
 
 # logger library required variables
 # -----------------------
-[[ -v STAGE ]]  || STAGE=boot-service
-[[ -v PROC ]]   || PROC=magisk
-[[ -v UID ]]    || UID=$(id -g)
-[[ -v PID ]]    || PID=$$
+# [[ -v STAGE ]]  || export STAGE=boot-service
+# [[ -v PROC ]]   || export PROC=magisk
+# [[ -v UID ]]    || { UID=$(id -g) && export UID; }
+# [[ -v PID ]]    || export PID=$$
 
 # logger dummy function
 logme(){ :; }
@@ -147,8 +147,8 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
         # get LDB value, no need to check if force flag is enabled
         get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
         [ -z "$get_LDB" ] && {
-            logme debug "loop: skipping..  $package_name failed to querying for LDB OWNERSHIP"
-            continue
+            logme error "loop: $package_name failed in querying for LDB OWNERSHIP"
+            # continue
         }
     }
 
