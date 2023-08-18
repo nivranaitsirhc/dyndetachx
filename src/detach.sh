@@ -57,12 +57,12 @@ logger_check(){
             # concat to internal storage module.log
             [ -f "$path_file_logs" ] && {
                 cat "$path_file_logs" >> "$path_dir_storage/module.log"
-                printf "" > "$path_file_logs"
             }
         else 
             # concat to module dir log
             cat "$path_file_logs" >> "$MODDIR/logs/module.log"
         fi
+        rm "$path_file_logs"
     fi
 }
 
@@ -160,7 +160,7 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
     # verify package name
     [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
         # package_name is not installed, skip to the next iteration
-        logme debug "loop: skipping..  $package_name is not installed."
+        logme debug "loop: skipping.. $package_name is not installed."
         continue
     }
 
@@ -207,7 +207,7 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
         # generate detach list
         detached_list="$detached_list\n$package_name"
     else
-        logme stats "loop: skipping..   $package_name already detached!"
+        logme stats "loop: skipping.. $package_name already detached!"
     fi
 done < "$path_file_module_detach"
 
