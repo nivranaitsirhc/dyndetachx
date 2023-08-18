@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.1.2 
+- ce26173 [core]          
+    - remove old logs (nivranaitsirhc)    
 ## v1.1.1 
 - 33a74eb [core]          
     - disable detach skipping on failed ownership query (nivranaitsirhc)  

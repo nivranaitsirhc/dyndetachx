@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.1.2 
+- ce26173 [core]          
+    - remove old logs (nivranaitsirhc)    
 ## v1.1.1 
 - a86e2bf [core]          
     - refactor detach verification (nivranaitsirhc)  
