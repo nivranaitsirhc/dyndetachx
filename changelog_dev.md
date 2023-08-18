@@ -1,7 +1,28 @@
 # Dynamic Detach ~ Changelog
+## v1.1.1 
+- a86e2bf [core]          
+    - refactor detach verification (nivranaitsirhc)  
+- 33a74eb [core]          
+    - disable detach skipping on failed ownership query (nivranaitsirhc)    
 ## v1.1.0 
 - 06ed955 [core]          
-    - refactor everything! :) (nivranaitsirhc)  
+    - refactor everything! :) (nivranaitsirhc)    
+## v1.0.12_beta 
+- 6da914f [fix]           
+    - add com.android.vening:background to checks for older devices (nivranaitsirhc)    
+## v1.0.11_beta 
+- d62f39c [fix]           
+    - fix bug caused by improper whitespace when updating db (nivranaitsirhc)    
+## v1.0.10_beta 
+- 0cd3edc [fix]           
+    - fix bug caused by problematic PATH manipulation (nivranaitsirhc)    
+## v1.0.9_beta 
+- d9c9cb5 [core]          
+    - refactor detach.sh to indicate that an app is already detached (nivranaitsirhc)  
+- bf79cf7 [configs]       
+    - fix module.prop support link (nivranaitsirhc)  
+- 97f67dc [core]          
+    - enable logger_check (nivranaitsirhc)  
 - 44ad4a8 [core]          
     - temporary fix to invalid update.json caused by build.sh (nivranaitsirhc)  
 - 5a44ea4 [core]          

@@ -1,7 +1,7 @@
 {
-    "version": "v1.1.0",
-    "versionCode": 10100,
-    "zipUrl": "https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/main/changelog.md",
+    "version": "v1.1.1",
+    "versionCode": 10101,
+    "zipUrl": "https://github.com/nivranaitsirhc/dyndetachx/releases/download/v1.1.1/dyndetachx_v1.1.1_release.zip",
     "changelog": "https://raw.githubusercontent.com/nivranaitsirhc/dyndetachx/main/changelog.md",
     "x": "null"
 }
