@@ -25,6 +25,11 @@ toggled_playstore_disabled=false
 toggled_forced_detach=false
 detached_list=""
 
+# log instance
+path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S)"
+# create module logs dir if not present
+[ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
+
 # logger library required variables
 # -----------------------
 # [[ -v STAGE ]]  || export STAGE=boot-service
@@ -46,17 +51,24 @@ logger_process=$(printf "%-6s %-6s" "$UID" "$PID")
 logger_special=$(printf "%-18s - %s" "$(basename "$0"):$STAGE" "$PROC")
 # logger
 logger_check(){
-    if [[ -v LOGGER_MODULE ]] && [ -f "$path_dir_storage/debug" ]; then
-        [ -f "$path_file_logs" ] && {
-            cat "$path_file_logs" >> "$path_dir_storage/module.log"
-            printf "" > "$path_file_logs"
-        }
+    # check if logger module is loaded
+    if [[ -v LOGGER_MODULE ]]; then
+        if [ -f "$path_dir_storage/debug" ]; then
+            # concat to internal storage module.log
+            [ -f "$path_file_logs" ] && {
+                cat "$path_file_logs" >> "$path_dir_storage/module.log"
+                printf "" > "$path_file_logs"
+            }
+        else 
+            # concat to module dir log
+            cat "$path_file_logs" >> "$MODDIR/logs/module.log"
+        fi
     fi
 }
 
 # send notifications
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf "$1")'"
+    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf $1)'"
 }
 
 # 
@@ -82,14 +94,20 @@ logme stats "initializing detach.sh.."
         if [ -f "$path_dir_storage/replace" ];then 
             logme stats "tag-files: detected replace tag, replacing module tag detach.txt with Internal Storage."
             # replace the module detach.txt
-            cp -rf "$path_dir_storage/detach.txt" "$MODDIR/detach.txt" || logme error "tag-files: replace: failed to copy detach.txt to module"
+            cp -rf "$path_dir_storage/detach.txt" "$MODDIR/detach.txt" ||\
+            logme error "tag-files: replace: failed to copy detach.txt to module"
+            # remove tag file
             rm -rf "$path_dir_storage/replace"
             setup_permissions=true
         elif [ -f "$path_dir_storage/merge" ];then
             logme stats "tag-files: detected merge tag, merging detach.txt from Internal Storage to Module."
             # merge both module and internal storage detach.txt
-            sort -u "$MODDIR/detach.txt" "$path_dir_storage/detach.txt" > "$MODDIR/tmp_detach.txt" || logme error "tag-files: merge: failed to merge detach.txt"
-            cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt" || logme error "tag-files: merge: failed to copy detach.txt to module"
+            sort -u "$MODDIR/detach.txt" "$path_dir_storage/detach.txt" > "$MODDIR/tmp_detach.txt" ||\
+            logme error "tag-files: merge: failed to merge detach.txt"
+            # rename temp detach to final detach
+            cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt" ||\
+            logme error "tag-files: merge: failed to copy detach.txt to module"
+            # clean old detach.txt
             rm -rf "$MODDIR/tmp_detach.txt"
             rm -rf "$path_dir_storage/merge"
             setup_permissions=true
@@ -103,6 +121,8 @@ logme stats "initializing detach.sh.."
 
 
     }
+
+    # setup permissions
     [ "$setup_permissions" = true ] && {
         if	chown root:root "$MODDIR/detach.txt" && \
             chmod 0644      "$MODDIR/detach.txt"; then
@@ -112,6 +132,7 @@ logme stats "initializing detach.sh.."
         fi
     }
 
+    # set force flag
     [ -f "$path_dir_storage/force" ] && {
         logme stats "tag-files: detected force tag, setting force toggle to true. This will ignore checks during detach process."
         # flag the force detach script
@@ -143,38 +164,46 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
         continue
     }
 
-    [ $toggled_forced_detach != true ] && {
-        # get LDB value, no need to check if force flag is enabled
-        get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
-        [ -z "$get_LDB" ] && {
-            logme error "loop: $package_name failed in querying for LDB OWNERSHIP"
-            # continue
-        }
-    }
+    # check current appstate & ownership value
+    get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
+    get_LADB=$(sqlite3 "$LADB" "SELECT package_name,auto_update FROM appstate" | grep "$package_name" | head -n 1 | grep -o 2)
 
     # verification of detach is need unless force flash is enabled
-    if { [ "$get_LDB" != "25" ] || [ $toggled_forced_detach = true ]; }; then
+    if { [ $toggled_forced_detach = true ] || [ "$get_LADB" -ne "2" ] || [ "$get_LDB" -ne "25" ]; }; then
 
         # stop playstore only once
         [ $toggled_playstore_disabled != true ] && {
             logme debug "loop: disabling PlayStore and setting GET_USAGE_STATS to ignore"
 
             # stop the playstore
-            am force-stop "$PS" ||\
-            logme error "loop: failed to stop $PS"
-            cmd appops set --uid "$PS" GET_USAGE_STATS ignore ||\
-            logme error "loop: failed to set GET_USAGE_STATS"
+            if ! am force-stop "$PS"; then
+                logme error "loop: failed to stop $PS"
+            fi
+            # set GET_USAGE_STATS
+            if ! cmd appops set --uid "$PS" GET_USAGE_STATS ignore; then
+                logme error "loop: failed to set $PS GET_USAGE_STATS to ignore"
+            fi
 
             # prevent multiple call
             toggled_playstore_disabled=true 
         }
-        logme stats "loop: detaching  $package_name.."
-        # update database to disable apps
-        sqlite3 $LDB    "UPDATE ownership   SET doc_type    = '25'  WHERE doc_id        = '$package_name'" ||\
-        logme error "loop: failed to set DB ownership"
-        sqlite3 $LADB   "UPDATE appstate    SET auto_update = '2'   WHERE package_name  = '$package_name'" ||\
-        logme error "loop: failed to set DB disable auto_update"
 
+        logme stats "loop: detaching  $package_name.."
+        # update database when necessary
+        if [ "$get_LDB" -ne "25" ]; then
+            if ! sqlite3 "$LDB" "UPDATE ownership SET doc_type = '25' WHERE doc_id = '$package_name'"; then
+                logme error "loop: failed to set DB ownership"
+            fi
+        else
+            logme stats "loop: no need to set ownership"
+        fi
+        if [ "$get_LADB" -ne "2" ]; then
+            if ! sqlite3 "$LADB" "UPDATE appstate SET auto_update = '2' WHERE package_name = '$package_name'";then
+                logme error "loop: failed to set DB disable auto_update"
+            fi
+        else
+            logme stats "loop: no need to set appstate"
+        fi
         # generate detach list
         detached_list="$detached_list\n$package_name"
     else
