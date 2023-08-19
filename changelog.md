@@ -1,4 +1,9 @@
 # Dynamic Detach ~ Changelog
+## v1.1.3 
+- a25ca4e [core]          
+    - add safety checks to prevent PS loop (nivranaitsirhc)  
+- fc27ff7 [core]          
+    - fix broken notificaiton (nivranaitsirhc)    
 ## v1.1.2 
 - ce26173 [core]          
     - remove old logs (nivranaitsirhc)    
