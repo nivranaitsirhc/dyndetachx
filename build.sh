@@ -115,7 +115,7 @@ zipUrl="https:\/\/github.com\/nivranaitsirhc\/dyndetachx\/releases\/download\/$l
 set_prop_json "version"         "$latest_tag_name"          "$ROOTDIR/configs/update.json"
 set_prop_json "versionCode"     "$latest_tag_code_num"      "$ROOTDIR/configs/update.json"
 set_prop_json "zipUrl"          "$zipUrl"                   "$ROOTDIR/configs/update.json"
-set_prop_json "zipUrl"          "$updateJsonChangelog"      "$ROOTDIR/configs/update.json"
+set_prop_json "changelog"       "$updateJsonChangelog"      "$ROOTDIR/configs/update.json"
 }
 
 # view comfing files
