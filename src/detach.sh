@@ -17,6 +17,7 @@ export PATH="$MODDIR/bin:$MAGISKTMP/.magisk/busybox:$PATH"
 path_file_module_detach="$MODDIR/detach.txt"
 path_dir_storage="/sdcard/DynamicDetachX"
 # -----------------------
+[[ ! -v PROC ]] && PROC=com.android.vending
 PS=com.android.vending
 DB=/data/data/$PS/databases
 LDB=$DB/library.db
@@ -71,15 +72,46 @@ send_notification() {
     su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf $1)'"
 }
 
-# 
-logme stats "initializing detach.sh.."
+# clean-exit
+clean_exit() {
+    local exitCode="${1:-0}"
+    logger_check
+    return "$exitCode"
+}
+
+# current detach
+[ -f "$MODDIR/running" ] && {
+    # check if running is within threshold
+    runningCount=$(cat "$MODDIR/running")
+    if { [ -n "$runningCount" ] && [ "$runningCount" -ge "5" ]; }; then
+        logme stats "running tag: Reached the max allowed skip. Removing tag and continuing.."
+        rm -f "$MODDIR/running"
+    else
+        currentCount=$(("$runningCount" + 1))
+        echo "$currentCount" > "$MODDIR/running"
+        logme debug "running tag: current count is $currentCount"
+        logme stats "running tag: skipping.. a detach process is still in progress."
+        clean_exit 1
+    fi
+}
+
+# recent detach 
+[ -f "$MODDIR/detached" ] && {
+    logme stats "skipping.. a recent detached prevented this run."
+    rm -rf "$MODDIR/detached"
+    clean_exit 1
+}
 
 # sanity checks
 { [ ! -f "$LDB" ] || [ ! -f "$LADB" ]; } && {
     logme error "exiting.. unable to locate LDB or LADB"
-    logger_check
-    return 1
+    clean_exit 1
 }
+
+# Start
+logme stats "initializing detach.sh.."
+# mark this run
+touch "$MODDIR/running"
 
 
 # Tag Files
@@ -94,19 +126,22 @@ logme stats "initializing detach.sh.."
         if [ -f "$path_dir_storage/replace" ];then 
             logme stats "tag-files: detected replace tag, replacing module tag detach.txt with Internal Storage."
             # replace the module detach.txt
-            cp -rf "$path_dir_storage/detach.txt" "$MODDIR/detach.txt" ||\
-            logme error "tag-files: replace: failed to copy detach.txt to module"
+            if ! cp -rf "$path_dir_storage/detach.txt" "$MODDIR/detach.txt"; then
+                logme error "tag-files: replace: failed to copy detach.txt to module"
+            fi
             # remove tag file
             rm -rf "$path_dir_storage/replace"
             setup_permissions=true
         elif [ -f "$path_dir_storage/merge" ];then
             logme stats "tag-files: detected merge tag, merging detach.txt from Internal Storage to Module."
             # merge both module and internal storage detach.txt
-            sort -u "$MODDIR/detach.txt" "$path_dir_storage/detach.txt" > "$MODDIR/tmp_detach.txt" ||\
-            logme error "tag-files: merge: failed to merge detach.txt"
+            if ! sort -u "$MODDIR/detach.txt" "$path_dir_storage/detach.txt" > "$MODDIR/tmp_detach.txt"; then
+                logme error "tag-files: merge: failed to merge detach.txt"
+            fi
             # rename temp detach to final detach
-            cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt" ||\
-            logme error "tag-files: merge: failed to copy detach.txt to module"
+            if ! cp -rf "$MODDIR/tmp_detach.txt" "$MODDIR/detach.txt"; then
+                logme error "tag-files: merge: failed to copy detach.txt to module"
+            fi
             # clean old detach.txt
             rm -rf "$MODDIR/tmp_detach.txt"
             rm -rf "$path_dir_storage/merge"
@@ -116,7 +151,9 @@ logme stats "initializing detach.sh.."
         [ -f "$path_dir_storage/mirror" ] && {
             logme stats "tag-files: detected mirror tag, copying detach.txt from module to Internal Storage"
             # copy detach.txt from module dir to internal storage
-            cp -rf "$MODDIR/detach.txt" "$path_dir_storage/detach.txt" || logme error "tag-files: mirror: failed to copy detach.txt to Internal Storage"
+            if ! cp -rf "$MODDIR/detach.txt" "$path_dir_storage/detach.txt"; then
+                logme error "tag-files: mirror: failed to copy detach.txt to Internal Storage"
+            fi
         }
 
 
@@ -165,22 +202,22 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
     }
 
     # check current appstate & ownership value
-    get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | grep -o 25)
-    get_LADB=$(sqlite3 "$LADB" "SELECT package_name,auto_update FROM appstate" | grep "$package_name" | head -n 1 | grep -o 2)
+    get_LDB=$(sqlite3 "$LDB" "SELECT doc_id,doc_type FROM ownership" | grep "$package_name" | head -n 1 | cut -d'|' -f2)
+    get_LADB=$(sqlite3 "$LADB" "SELECT package_name,auto_update FROM appstate" | grep "$package_name" | head -n 1 | cut -d'|' -f2)
 
     # verification of detach is need unless force flash is enabled
-    if { [ $toggled_forced_detach = true ] || [ "$get_LADB" -ne "2" ] || [ "$get_LDB" -ne "25" ]; }; then
+    if { [ $toggled_forced_detach = true ] || { [ -n "$get_LADB" ] && [ "$get_LADB" -ne "2" ]; } || { [ -n "$get_LDB" ] && [ "$get_LDB" -ne "25" ]; } }; then
 
         # stop playstore only once
         [ $toggled_playstore_disabled != true ] && {
-            logme debug "loop: disabling PlayStore and setting GET_USAGE_STATS to ignore"
+            logme debug "loop: stopping Google PlayStore and setting GET_USAGE_STATS to ignore"
 
             # stop the playstore
             if ! am force-stop "$PS"; then
                 logme error "loop: failed to stop $PS"
             fi
             # set GET_USAGE_STATS
-            if ! cmd appops set --uid "$PS" GET_USAGE_STATS ignore; then
+            if ! cmd appops set --uid "$PS" "GET_USAGE_STATS" "ignore"; then
                 logme error "loop: failed to set $PS GET_USAGE_STATS to ignore"
             fi
 
@@ -189,24 +226,40 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
         }
 
         logme stats "loop: detaching  $package_name.."
-        # update database when necessary
+        
+        # update ownership
         if [ "$get_LDB" -ne "25" ]; then
             if ! sqlite3 "$LDB" "UPDATE ownership SET doc_type = '25' WHERE doc_id = '$package_name'"; then
-                logme error "loop: failed to set DB ownership"
+                logme error "loop: failed to update database to set ownership"
             fi
         else
             logme stats "loop: no need to set ownership"
         fi
+
+        # update appstate
         if [ "$get_LADB" -ne "2" ]; then
             if ! sqlite3 "$LADB" "UPDATE appstate SET auto_update = '2' WHERE package_name = '$package_name'";then
-                logme error "loop: failed to set DB disable auto_update"
+                logme error "loop: failed to update database to disable auto_update"
             fi
         else
             logme stats "loop: no need to set appstate"
         fi
+
         # generate detach list
         detached_list="$detached_list\n$package_name"
     else
+        if [ -z "$LADB" ]; then
+            logme debug "loop: LADB is null"
+        else 
+            logme debug "loop: LADB is \"$LADB\""
+        fi
+        
+        if [ -z "$LDB" ]; then
+            logme debug "loop: LDB  is null"
+        else 
+            logme debug "loop: LDB  is \"$LDB\""
+        fi
+
         logme stats "loop: skipping.. $package_name already detached!"
     fi
 done < "$path_file_module_detach"
@@ -215,28 +268,27 @@ done < "$path_file_module_detach"
 [ $toggled_playstore_disabled = true ] && {
     logme stats "clear-cache: clearing PlayStore Cache.."
     send_notification "Detached Apps: $detached_list"
-    rm -rf /data/data/$PS/cache/* ||\
-    logme error "clear-cache: failed to clear cache"
+    if ! rm -rf /data/data/"$PS"/cache/*; then
+        logme error "clear-cache: failed to clear cache"
+    fi
 
     # restart playstore only after a successfully detached, prevent loops
     [ ! -f "$MODDIR/detached" ] && {
         # start playstore
         # sleep 3
+        
         logme debug "restart: restarting PlayStore and creating detached tag file."
-        touch "$MODDIR/detached" ||\
-        logme error "restart: failed to create tag detached tag file."
-        if am start -n "$(cmd package resolve-activity --brief $PS | tail -n 1)" ;then
-            logger_check
-            return 0
+        if ! touch "$MODDIR/detached"; then
+            logme error "restart: failed to create tag detached tag file."
         else
-            logme error "restart: failed to start PlayStore"
+            # start Google PlayStore
+            if ! am start -n "$(cmd package resolve-activity --brief "$PROC" | tail -n 1)" ;then
+                logme error "restart: failed to start PlayStore"
+            fi
         fi
     }
 }
 
-# clean up
-[ -f "$MODDIR/detached" ] && {
-    logme debug "cleanup: removed detached tag file."
-    rm -rf "$MODDIR/detached"
-}
+# remove run marker
+rm -f "$MODDIR/running"
 logger_check
