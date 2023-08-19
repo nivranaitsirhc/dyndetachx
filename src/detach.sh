@@ -27,7 +27,7 @@ toggled_forced_detach=false
 detached_list=""
 
 # log instance
-path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S)"
+path_file_logs="$MODDIR/logs/$(date +%y-%m-%d_%H-%M-%S).log"
 # create module logs dir if not present
 [ ! -d "$MODDIR/logs" ] && mkdir -p "$MODDIR/logs"
 
@@ -76,7 +76,7 @@ send_notification() {
 clean_exit() {
     local exitCode="${1:-0}"
     logger_check
-    return "$exitCode"
+    exit "$exitCode"
 }
 
 # current detach
@@ -183,7 +183,7 @@ touch "$MODDIR/running"
     mkdir -p "$path_dir_storage"
     printf "%s" "$(date) - missing module dir detach.txt" > "$path_dir_storage/missing_detach.txt"
     logme error "exiting.. missing detach.txt in module."
-    exit 1
+    clean_exit 1
 }
 
 # main-process
@@ -192,7 +192,6 @@ logme stats "loop: starting detach process.."
 logme debug "loop: querying package_name's from detach.txt.."
 while IFS=  read -r package_name || [ -n "$package_name" ];do
     # iterate all the package name in detach.txt
-    logme debug "loop: processing $package_name.."
     
     # verify package name
     [ -z "$(dumpsys package "$package_name" | grep versionName | cut -d= -f 2 | sed -n '1p')" ] && {
@@ -225,7 +224,7 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
             toggled_playstore_disabled=true 
         }
 
-        logme stats "loop: detaching  $package_name.."
+        logme stats "loop: processing $package_name.."
         
         # update ownership
         if [ "$get_LDB" -ne "25" ]; then
@@ -248,18 +247,7 @@ while IFS=  read -r package_name || [ -n "$package_name" ];do
         # generate detach list
         detached_list="$detached_list\n$package_name"
     else
-        if [ -z "$LADB" ]; then
-            logme debug "loop: LADB is null"
-        else 
-            logme debug "loop: LADB is \"$LADB\""
-        fi
-        
-        if [ -z "$LDB" ]; then
-            logme debug "loop: LDB  is null"
-        else 
-            logme debug "loop: LDB  is \"$LDB\""
-        fi
-
+        logme debug "loop: LADB is $( if [ -z "$get_LADB" ]; then echo "null";else echo "\"$get_LADB\"";fi ) and LDB is $( if [ -z "$get_LDB" ]; then echo "null"; else echo "\"$get_LDB\"";fi )"
         logme stats "loop: skipping.. $package_name already detached!"
     fi
 done < "$path_file_module_detach"
