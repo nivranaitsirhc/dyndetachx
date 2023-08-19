@@ -1,7 +1,9 @@
 # Dynamic Detach ~ Changelog
 ## v1.1.4 
 - 44fd866 [configs]       
-    - reflect beta channel in module name (nivranaitsirhc)    
+    - reflect beta channel in module name (nivranaitsirhc)  
+- 9ff922a [core]          
+    - fix critical error on clean exit (nivranaitsirhc)    
 ## v1.1.3 
 - fc27ff7 [core]          
     - fix broken notificaiton (nivranaitsirhc)  

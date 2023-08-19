@@ -1,4 +1,7 @@
 # Dynamic Detach ~ Changelog
+## v1.1.4 
+- 9ff922a [core]          
+    - fix critical error on clean exit (nivranaitsirhc)    
 ## v1.1.3 
 - a25ca4e [core]          
     - add safety checks to prevent PS loop (nivranaitsirhc)  
