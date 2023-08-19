@@ -69,7 +69,7 @@ logger_check(){
 
 # send notifications
 send_notification() {
-    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf $1)'"
+    su 2000 -c "cmd notification post -S bigtext -t 'DynDetachX' 'Tag' '$(printf "$1")'"
 }
 
 # clean-exit
